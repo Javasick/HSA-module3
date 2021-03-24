@@ -1,12 +1,13 @@
 package com.projector;
 
 import com.brsanthu.googleanalytics.GoogleAnalytics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Random;
-import java.util.logging.Logger;
 
 public class App {
-    private static final Logger log = Logger.getLogger(App.class.getSimpleName());
+    private static final Logger log = LoggerFactory.getLogger(App.class.getSimpleName());
 
     public static void main(String[] args) throws InterruptedException {
         GoogleAnalytics googleAnalytics = GoogleAnalytics.builder()
@@ -31,7 +32,7 @@ public class App {
                     .eventValue(value)
                     .send();
 
-            log.info("Value is " + value);
+            log.info("Value is {}", value);
 
             Thread.sleep(5000);
             googleAnalytics.screenView()
