@@ -1,45 +1,61 @@
 package com.projector;
 
-import com.brsanthu.googleanalytics.GoogleAnalytics;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Random;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 
 public class App {
     private static final Logger log = LoggerFactory.getLogger(App.class.getSimpleName());
+    public static final String TRACKING_ID = "G-6HS77F82QK";
 
-    public static void main(String[] args) throws InterruptedException {
-        GoogleAnalytics googleAnalytics = GoogleAnalytics.builder()
-                .withTrackingId("G-R5Z91C3QC0")
-                .build();
+    public static void main(String[] args) throws IOException, InterruptedException {
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpPost request = new HttpPost(getUri());
+        request.setEntity(getPayload());
+        HttpResponse response = client.execute(request);
+        log.info("Event tracked, status code {}", response.getStatusLine().getStatusCode());
+    }
 
-        Random random = new Random();
-
-        log.info("Starting send events to GA");
-
-        for (int i = 1; i <= 100; i++) {
-            int value = random.nextInt();
-
-            googleAnalytics.screenView()
-                    .sessionControl("start")
-                    .send();
-
-            googleAnalytics.pageView("/hello", "Hello world").send();
-
-            googleAnalytics.event()
-                    .eventCategory("My category")
-                    .eventValue(value)
-                    .send();
-
-            log.info("Value is {}", value);
-
-            Thread.sleep(5000);
-            googleAnalytics.screenView()
-                    .sessionControl("end")
-                    .send();
+    private static URI getUri() {
+        URIBuilder builder = new URIBuilder();
+        builder
+                .setScheme("https")
+                .setHost("www.google-analytics.com")
+                .setPath("/mp/collect")
+                .addParameter("measurement_id", TRACKING_ID) // Tracking ID / Property ID.
+                .addParameter("api_secret", "5Vc_-1gZQaurQURM6DtWPA");
+        URI uri = null;
+        try {
+            uri = builder.build();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Problem building URI", e);
         }
+        return uri;
+    }
 
-        log.info("End");
+    private static BasicHttpEntity getPayload() {
+        BasicHttpEntity entity = new BasicHttpEntity();
+        String payload = new JSONObject()
+                .put("client_id", "123.456")
+                .put("events", new JSONObject[]{
+                        new JSONObject()
+                                .put("name", "AwesomeEvent")
+                })
+                .toString();
+        log.info(payload);
+        entity.setContent(new ByteArrayInputStream((payload.getBytes(StandardCharsets.UTF_8))));
+        return entity;
     }
 }
