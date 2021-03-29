@@ -37,13 +37,11 @@ public class App {
                 .setPath("/mp/collect")
                 .addParameter("measurement_id", TRACKING_ID) // Tracking ID / Property ID.
                 .addParameter("api_secret", API_SECRET);
-        URI uri = null;
         try {
-            uri = builder.build();
+            return builder.build();
         } catch (URISyntaxException e) {
             throw new RuntimeException("Problem building URI", e);
         }
-        return uri;
     }
 
     private static BasicHttpEntity getPayload() {
