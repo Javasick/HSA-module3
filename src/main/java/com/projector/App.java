@@ -19,8 +19,9 @@ import java.nio.charset.StandardCharsets;
 public class App {
     private static final Logger log = LoggerFactory.getLogger(App.class.getSimpleName());
     public static final String TRACKING_ID = "G-6HS77F82QK";
+    public static final String API_SECRET = "5Vc_-1gZQaurQURM6DtWPA";
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
         HttpClient client = HttpClientBuilder.create().build();
         HttpPost request = new HttpPost(getUri());
         request.setEntity(getPayload());
@@ -35,7 +36,7 @@ public class App {
                 .setHost("www.google-analytics.com")
                 .setPath("/mp/collect")
                 .addParameter("measurement_id", TRACKING_ID) // Tracking ID / Property ID.
-                .addParameter("api_secret", "5Vc_-1gZQaurQURM6DtWPA");
+                .addParameter("api_secret", API_SECRET);
         URI uri = null;
         try {
             uri = builder.build();
